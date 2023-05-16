@@ -1,13 +1,8 @@
 export 'campaign_detail_route.dart';
 export 'login_route.dart';
-export 'notification_route/notification_closed_route.dart';
 export 'notification_detail_route.dart';
-export 'notification_route/notification_open_route.dart';
-export 'notification_route/notification_shell_route.dart';
-export 'task_route/task_available_route.dart';
 export 'task_detail_route.dart';
-export 'task_route/task_relevant_route.dart';
-export 'task_route/task_shell_route.dart';
-export 'campaign_route/campaign_available_route.dart';
-export 'campaign_route/campaign_shell_route.dart';
-export 'campaign_route/campaign_user_route.dart';
+export 'campaign_route.dart';
+export 'task_route.dart';
+export 'notification_route.dart';
+export 'available_task_route.dart';

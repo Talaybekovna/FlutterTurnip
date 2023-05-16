@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:gigaturnip_api/gigaturnip_api.dart';
-import 'package:gigaturnip_api/src/models/task_detail.dart';
 import 'package:retrofit/retrofit.dart';
 
 part 'gigaturnip_api_client.g.dart';
@@ -84,6 +83,11 @@ abstract class GigaTurnipApiClient {
 
   @GET(userRelevantTaskStageRoute)
   Future<PaginationWrapper<TaskStage>> getUserRelevantTaskStages({
+    @Queries() Map<String, dynamic>? query,
+  });
+
+  @GET(selectableTaskStageRoute)
+  Future<PaginationWrapper<TaskStage>> getSelectableTaskStages({
     @Queries() Map<String, dynamic>? query,
   });
 
