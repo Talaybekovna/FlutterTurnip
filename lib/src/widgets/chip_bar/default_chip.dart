@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:gigaturnip/src/theme/index.dart';
 
 class DefaultChip extends StatelessWidget {
@@ -54,7 +54,7 @@ class DefaultChip extends StatelessWidget {
           child: Text(
             label,
             style: TextStyle(
-              fontSize: 16.sp,
+              fontSize: 16,
               color: active ? activeFontColor : defaultFontColor,
             ),
           ),
