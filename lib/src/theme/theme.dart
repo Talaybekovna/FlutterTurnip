@@ -2,17 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:material_color_utilities/hct/hct.dart';
 import 'package:material_color_utilities/palettes/tonal_palette.dart';
 
-final lightTheme = ThemeData(
-  fontFamily: 'Roboto',
-  colorScheme: lightColorScheme,
-  textTheme: Typography.englishLike2021,
-);
-
-final darkTheme = ThemeData(
-  fontFamily: 'Roboto',
-  colorScheme: darkColorScheme,
-  textTheme: Typography.englishLike2021,
-);
 
 const lightColorScheme = ColorScheme(
   brightness: Brightness.light,
