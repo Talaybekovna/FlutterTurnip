@@ -1,6 +1,8 @@
+import 'package:drift/drift.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:gigaturnip_api/gigaturnip_api.dart' as api show Campaign;
+import 'package:local_database/local_database.dart' as db;
 
 part 'campaign.g.dart';
 
@@ -9,21 +11,66 @@ class Campaign extends Equatable {
   final int id;
   final String name;
   final String description;
+  final bool canJoin;
+  final bool smsLoginAllow;
+  final String? descriptor;
+  final String logo;
+  final int unreadNotifications;
 
-  const Campaign({required this.id, required this.name, required this.description});
+  const Campaign({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.descriptor,
+    required this.logo,
+    required this.smsLoginAllow,
+    required this.unreadNotifications,
+    this.canJoin = false,
+  });
 
   factory Campaign.fromJson(Map<String, dynamic> json) {
     return _$CampaignFromJson(json);
   }
 
-  factory Campaign.fromApiModel(api.Campaign model) {
+  Map<String, dynamic> toJson() {
+    return _$CampaignToJson(this);
+  }
+
+  db.CampaignCompanion toDB() {
+    return db.CampaignCompanion.insert(
+      id: Value(id),
+      name: name,
+      description: description,
+      descriptor: Value(descriptor),
+      logo: logo,
+    );
+  }
+
+  factory Campaign.fromApiModel(api.Campaign model, bool canJoin) {
     return Campaign(
       id: model.id,
       name: model.name,
       description: model.description,
+      canJoin: canJoin,
+      descriptor: model.descriptor,
+      logo: model.logo,
+      smsLoginAllow: model.smsLoginAllow,
+      unreadNotifications: model.notificationsCount,
+    );
+  }
+
+  factory Campaign.fromDB(db.CampaignData model) {
+    return Campaign(
+      id: model.id,
+      name: model.name,
+      description: model.description,
+      descriptor: model.descriptor,
+      logo: model.logo,
+      smsLoginAllow: false,
+      unreadNotifications: 0,
     );
   }
 
   @override
-  List<Object?> get props => [id, name, description];
+  List<Object?> get props => [id, name, description, canJoin];
 }

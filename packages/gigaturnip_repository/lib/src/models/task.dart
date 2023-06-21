@@ -1,7 +1,11 @@
+import 'dart:convert';
+
+import 'package:drift/drift.dart';
 import 'package:equatable/equatable.dart';
 import 'package:gigaturnip_repository/gigaturnip_repository.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:gigaturnip_api/gigaturnip_api.dart' as api show Task;
+import 'package:local_database/local_database.dart' as db;
 
 part 'task.g.dart';
 
@@ -9,8 +13,6 @@ part 'task.g.dart';
 class Task extends Equatable {
   final int id;
   final String name;
-  final Map<String, dynamic>? schema;
-  final Map<String, dynamic>? uiSchema;
   final Map<String, dynamic>? responses;
   final bool complete;
   final bool reopened;
@@ -18,10 +20,6 @@ class Task extends Equatable {
   final DateTime? createdAt;
   final Map<String, dynamic>? cardJsonSchema;
   final Map<String, dynamic>? cardUiSchema;
-  final List<Task> displayedPrevTasks;
-  final bool isIntegrated;
-  final List<Map<String, dynamic>>? dynamicSource;
-  final List<Map<String, dynamic>>? dynamicTarget;
 
   const Task({
     required this.id,
@@ -31,18 +29,37 @@ class Task extends Equatable {
     required this.reopened,
     required this.stage,
     required this.createdAt,
-    required this.schema,
-    required this.uiSchema,
     required this.cardJsonSchema,
     required this.cardUiSchema,
-    required this.displayedPrevTasks,
-    required this.isIntegrated,
-    required this.dynamicSource,
-    required this.dynamicTarget,
   });
 
   factory Task.fromJson(Map<String, dynamic> json) {
     return _$TaskFromJson(json);
+  }
+
+  db.TaskCompanion toDB() {
+    return db.TaskCompanion.insert(
+      id: Value(id),
+      name: name,
+      complete: complete,
+      reopened: reopened,
+      stage: stage.id,
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory Task.fromDB(db.TaskData model, db.TaskStageData stage) {
+    return Task(
+      id: model.id,
+      name: model.name,
+      responses: jsonDecode(model.responses ?? "{}"),
+      complete: model.complete,
+      reopened: model.reopened,
+      createdAt: model.createdAt,
+      cardJsonSchema: jsonDecode(stage.cardJsonSchema ?? "{}"),
+      cardUiSchema: jsonDecode(stage.cardUiSchema ?? "{}"),
+      stage: TaskStage.fromDB(stage),
+    );
   }
 
   factory Task.fromApiModel(api.Task model) {
@@ -53,16 +70,9 @@ class Task extends Equatable {
       complete: model.complete,
       reopened: model.reopened ?? false,
       createdAt: model.createdAt,
-      schema: model.stage.jsonSchema,
-      uiSchema: model.stage.uiSchema,
       cardJsonSchema: model.stage.cardJsonSchema,
       cardUiSchema: model.stage.cardUiSchema,
       stage: TaskStage.fromApiModel(model.stage),
-      displayedPrevTasks:
-          model.displayedPrevTasks?.map((task) => Task.fromApiModel(task)).toList() ?? [],
-      isIntegrated: model.integratorGroup != null,
-      dynamicSource: model.stage.dynamicJsonsSource,
-      dynamicTarget: model.stage.dynamicJsonsTarget,
     );
   }
 
@@ -75,21 +85,13 @@ class Task extends Equatable {
       reopened: reopened,
       createdAt: createdAt,
       stage: stage,
-      schema: schema ?? this.schema,
-      uiSchema: uiSchema,
       cardJsonSchema: cardJsonSchema,
       cardUiSchema: cardUiSchema,
-      displayedPrevTasks: displayedPrevTasks,
-      isIntegrated: isIntegrated,
       responses: responses ?? this.responses,
       complete: complete ?? this.complete,
-      dynamicSource: dynamicSource,
-      dynamicTarget: dynamicTarget,
     );
   }
 
   @override
   List<Object?> get props => [id, responses, complete, reopened, stage];
-
-  bool get isDynamic => dynamicTarget != null && (dynamicTarget?.isNotEmpty ?? false);
 }
