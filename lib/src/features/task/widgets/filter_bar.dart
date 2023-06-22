@@ -27,10 +27,9 @@ class _FilterBarState extends State<FilterBar> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context).colorScheme;
     final keys = widget.filters.keys.toList();
     final values = widget.filters.values.toList();
-    // _activeFilter = widget.value;
+
     return FixedChipBar(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       children: [
@@ -46,7 +45,7 @@ class _FilterBarState extends State<FilterBar> {
             },
           ),
         ],
-      ),
+
     );
   }
 }

@@ -36,6 +36,7 @@ class FilterBarWidget extends StatelessWidget {
               filterNames.add(category.name);
             }
             return FilterBar(
+              title: '',
               onChanged: (query) {
                 context.read<SelectableCampaignCubit>().refetchWithFilter(query!.values.first);
                 context.read<UserCampaignCubit>().refetchWithFilter(query.values.first);
