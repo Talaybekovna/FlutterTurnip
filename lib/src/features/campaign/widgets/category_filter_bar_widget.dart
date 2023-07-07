@@ -35,12 +35,7 @@ class CategoryFilterBarWidget extends StatelessWidget {
             for (var category in state.data) {
               filterNames.add(category.name);
             }
-<<<<<<< HEAD:lib/src/features/campaign/widgets/filter_bar_widget.dart
-            return FilterBar(
-              title: '',
-=======
             return CategoryFilterBar(
->>>>>>> upstream/main:lib/src/features/campaign/widgets/category_filter_bar_widget.dart
               onChanged: (query) {
                 context.read<SelectableCampaignCubit>().refetchWithFilter(query!.values.first);
                 context.read<UserCampaignCubit>().refetchWithFilter(query.values.first);
