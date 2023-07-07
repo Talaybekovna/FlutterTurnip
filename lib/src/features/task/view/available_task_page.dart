@@ -26,7 +26,7 @@ class AvailableTaskPage extends StatelessWidget {
   void redirectToTask(BuildContext context, Task item) async {
     final result = await context.pushNamed<bool>(
       TaskDetailRoute.name,
-      params: {
+      pathParameters: {
         "cid": "$campaignId",
         "tid": "${item.id}",
       },
@@ -39,7 +39,7 @@ class AvailableTaskPage extends StatelessWidget {
   void redirectToTaskMenu(BuildContext context) {
     context.goNamed(
       TaskRoute.name,
-      params: {"cid": "$campaignId"},
+      pathParameters: {"cid": "$campaignId"},
     );
   }
 
@@ -85,9 +85,10 @@ class AvailableTaskPage extends StatelessWidget {
                       ),
                     ],
                     title: item.name,
+                    id: item.id,
                     bottom: ExpansionTile(
                       tilePadding: EdgeInsets.zero,
-                      title: CardDate(date: item.createdAt),
+                      title: CardDate(date: item.createdAt?.toLocal()),
                       children: [
                         FlutterJsonSchemaForm(
                           schema: item.cardJsonSchema ?? {},

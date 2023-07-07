@@ -8,6 +8,7 @@ class CardWithTitle extends StatelessWidget {
   final List<Widget> chips;
   final String imageUrl;
   final String title;
+  final int? id;
   final double elevation;
   final Widget? body;
   final Widget? bottom;
@@ -21,6 +22,7 @@ class CardWithTitle extends StatelessWidget {
     required this.title,
     this.chips = const [],
     this.body,
+    this.id,
     this.bottom,
     this.onTap,
     this.elevation = 0,
@@ -36,6 +38,11 @@ class CardWithTitle extends StatelessWidget {
       fontWeight: FontWeight.w600,
       color: theme.isLight ? theme.neutral40 : theme.neutral90,
       overflow: TextOverflow.ellipsis,
+    );
+    final footerStyle = TextStyle(
+      color: theme.neutral70,
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
     );
 
     return BaseCard(
@@ -53,6 +60,11 @@ class CardWithTitle extends StatelessWidget {
                     Row(children: chips),
                     const SizedBox(height: 10),
                     Text(title, maxLines: 2, style: titleStyle),
+                    const SizedBox(height: 5),
+                    Text(
+                      (id != null) ? 'ID:${id!}' : '',
+                      style: footerStyle,
+                    )
                   ],
                 ),
               ),

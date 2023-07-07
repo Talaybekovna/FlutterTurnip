@@ -45,7 +45,7 @@ class NotificationDetailView extends StatelessWidget {
       appBar: AppBar(
         leading: BackButton(
           onPressed: () {
-            context.goNamed(TaskRoute.name, params: {'cid': '$campaignId'});
+            context.goNamed(TaskRoute.name, pathParameters: {'cid': '$campaignId'});
           },
         ),
       ),
@@ -74,7 +74,7 @@ class NotificationDetailView extends StatelessWidget {
                         style: Theme.of(context).textTheme.titleLarge,
                         textAlign: TextAlign.center,
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       Text(state.data.text, textAlign: TextAlign.center),

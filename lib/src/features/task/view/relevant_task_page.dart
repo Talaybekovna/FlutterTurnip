@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gigaturnip/extensions/buildcontext/loc.dart';
 import 'package:gigaturnip/src/bloc/bloc.dart';
+import 'package:gigaturnip/src/features/notification/bloc/notification_cubit.dart';
 import 'package:gigaturnip/src/features/task/widgets/available_task_stages.dart';
 import 'package:gigaturnip/src/features/task/widgets/task_chain/task_stage_chain_page.dart';
 import 'package:gigaturnip/src/router/routes/routes.dart';
@@ -31,13 +32,14 @@ class _RelevantTaskPageState extends State<RelevantTaskPage> {
       context.read<SelectableTaskStageCubit>().refetch();
       context.read<ReactiveTasks>().refetch();
       context.read<ProactiveTasks>().refetch();
+      context.read<OpenNotificationCubit>().refetch();
     }
   }
 
   void redirectToTask(BuildContext context, Task task) async {
     final result = await context.pushNamed<bool>(
       TaskDetailRoute.name,
-      params: {
+      pathParameters: {
         'cid': '${widget.campaignId}',
         'tid': '${task.id}',
       },
@@ -51,7 +53,7 @@ class _RelevantTaskPageState extends State<RelevantTaskPage> {
   void redirectToTaskWithId(BuildContext context, int id) async {
     final result = await context.pushNamed<bool>(
       TaskDetailRoute.name,
-      params: {
+      pathParameters: {
         'cid': '${widget.campaignId}',
         'tid': '$id',
       },
@@ -64,7 +66,7 @@ class _RelevantTaskPageState extends State<RelevantTaskPage> {
   void redirectToAvailableTasks(BuildContext context, TaskStage stage) {
     context.goNamed(
       AvailableTaskRoute.name,
-      params: {'cid': '${widget.campaignId}', 'tid': '${stage.id}'},
+      pathParameters: {'cid': '${widget.campaignId}', 'tid': '${stage.id}'},
     );
   }
 
@@ -85,8 +87,6 @@ class _RelevantTaskPageState extends State<RelevantTaskPage> {
 
   @override
   Widget build(BuildContext context) {
-    final double verticalPadding = (context.isExtraLarge || context.isLarge) ? 30 : 20;
-
     const taskFilterMap = {
       'Активные': {'complete': false},
       'Возвращенные': {'reopened': true, 'complete': false},
@@ -132,6 +132,7 @@ class _RelevantTaskPageState extends State<RelevantTaskPage> {
             itemBuilder: (context, index, item) {
               return CardWithTitle(
                 title: item.name,
+                id: item.id,
                 size: context.isSmall || context.isMedium ? null : const Size.fromHeight(165),
                 flex: context.isSmall || context.isMedium ? 0 : 1,
                 onTap: () => context.read<ReactiveTasks>().createTask(item),
@@ -141,11 +142,12 @@ class _RelevantTaskPageState extends State<RelevantTaskPage> {
           AdaptiveListView<Task, RelevantTaskCubit>(
             padding: const EdgeInsets.only(top: 15.0, left: 24, right: 24),
             itemBuilder: (context, index, item) {
-              final cardBody = CardDate(date: item.createdAt);
+              final cardBody = CardDate(date: item.createdAt?.toLocal());
 
               return CardWithTitle(
                 chips: [const Spacer(), StatusCardChip(item)],
                 title: item.name,
+                id: item.id,
                 size: context.isSmall || context.isMedium ? null : const Size.fromHeight(165),
                 flex: context.isSmall || context.isMedium ? 0 : 1,
                 onTap: () => redirectToTask(context, item),

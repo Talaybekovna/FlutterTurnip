@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gigaturnip/extensions/buildcontext/loc.dart';
+import 'package:gigaturnip/src/bloc/localization_bloc/localization_bloc.dart';
+import 'package:gigaturnip/src/theme/index.dart';
 
 class SignUpButton extends StatelessWidget {
+  final bool? isActive;
   final FocusNode? focusNode;
-  final void Function()? onPressed;
+  final void Function(String? errorMessage) onPressed;
 
-  const SignUpButton({Key? key, this.onPressed, this.focusNode}) : super(key: key);
+  const SignUpButton({
+    Key? key,
+    required this.onPressed,
+    this.isActive,
+    this.focusNode,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,15 +29,21 @@ class SignUpButton extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
-          backgroundColor: theme.primary,
+          backgroundColor: (isActive != null && !isActive!) ? theme.neutral95  : theme.primary,
         ),
-        onPressed: onPressed,
+        onPressed: () {
+          if (isActive != null && !isActive!) {
+            onPressed(context.loc.choose_language);
+          } else {
+            onPressed(null);
+          }
+        },
         child: Text(
           context.loc.further,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: Colors.white,
+            color: (isActive != null && !isActive!) ? theme.neutralVariant80 : Colors.white,
           ),
         ),
       ),

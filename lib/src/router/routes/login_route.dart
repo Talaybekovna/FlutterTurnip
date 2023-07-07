@@ -17,6 +17,13 @@ class LoginRoute {
       name: name,
       path: path,
       builder: (BuildContext context, GoRouterState state) {
+        final query = state.queryParameters;
+        if (query.isNotEmpty) {
+          final queryString = query.values.first;
+          final id = queryString[queryString.length - 1];
+          final campaignId = int.tryParse(id);
+          return LoginPage(campaignId: campaignId);
+        }
         return const LoginPage();
       },
     );
