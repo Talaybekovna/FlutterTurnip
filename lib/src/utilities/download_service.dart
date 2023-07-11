@@ -18,6 +18,16 @@ class WebDownloadService implements DownloadService {
   @override
   Future<String?> download({required String url, String? filename}) async {
     html.window.open(url, "_blank");
+    // html.Blob fileBlob = html.Blob([bytes], 'application/octet-stream');
+    // final url = html.Url.createObjectUrlFromBlob(fileBlob);
+    //
+    // final anchorElement = html.AnchorElement(href: url);
+    // anchorElement.download = name;
+    // anchorElement.click();
+    //
+    // await Future.delayed(const Duration(seconds: 1));
+    // html.Url.revokeObjectUrl(url);
+
     return 'success';
   }
 }
