@@ -538,7 +538,7 @@ packages:
     description:
       path: "."
       ref: master
-      resolved-ref: c85f22e35ee2b7b2e68667bbd5b4003d7497e49c
+      resolved-ref: "6269d6c952b1e67ebac5a1283e662930c46e5663"
       url: "https://github.com/KloopMedia/flutter-jsonschema-form.git"
     source: git
     version: "0.0.1"
@@ -1535,6 +1535,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  video_compress:
+    dependency: transitive
+    description:
+      name: video_compress
+      sha256: "407693726e674a1e1958801deb2d9daf5a5297707ba6d03375007012dae7389a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.2"
   video_player:
     dependency: transitive
     description:
