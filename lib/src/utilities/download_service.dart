@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:http/http.dart' as http;
 import 'package:background_downloader/background_downloader.dart';
 import 'package:flutter/foundation.dart';
 import 'package:universal_html/html.dart' as html;
@@ -16,33 +18,23 @@ abstract class DownloadService {
 
 class WebDownloadService implements DownloadService {
   @override
-<<<<<<< HEAD
-  Future<String?> download({required String url, String? filename}) async {
-    html.window.open(url, "_blank");
+  Future<String?> download({required String url, String? filename, int? bytes}) async {
     // html.Blob fileBlob = html.Blob([bytes], 'application/octet-stream');
     // final url = html.Url.createObjectUrlFromBlob(fileBlob);
     //
     // final anchorElement = html.AnchorElement(href: url);
-    // anchorElement.download = name;
+    // anchorElement.download = filename;
     // anchorElement.click();
     //
     // await Future.delayed(const Duration(seconds: 1));
     // html.Url.revokeObjectUrl(url);
 
-    return 'success';
-=======
-  Future<String?> download({required String url, String? filename, int? bytes}) async {
-    html.Blob fileBlob = html.Blob([bytes], 'application/octet-stream');
-    final url = html.Url.createObjectUrlFromBlob(fileBlob);
-
-    final anchorElement = html.AnchorElement(href: url);
-    anchorElement.download = filename;
-    anchorElement.click();
-
-    await Future.delayed(const Duration(seconds: 1));
-    html.Url.revokeObjectUrl(url);
+    final response = await http.get(Uri.parse(url));
+    final byte = response.bodyBytes;
+    final File file = File('C:/downloads');
+    // await file.writeAsBytes(byte);
+    await file.writeAsBytes(Uint8List.fromList(byte));
     return 'Download successful';
->>>>>>> upstream/development
   }
 }
 
