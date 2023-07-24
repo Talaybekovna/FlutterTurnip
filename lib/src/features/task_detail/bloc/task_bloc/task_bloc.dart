@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:gigaturnip/src/utilities/functions.dart';
 import 'package:gigaturnip_repository/gigaturnip_repository.dart';
@@ -12,12 +13,15 @@ part 'task_state.dart';
 class TaskBloc extends Bloc<TaskEvent, TaskState> {
   final int taskId;
   final TaskDetailRepository _repository;
+  final CampaignDetailRepository _campaignRepository;
 
   TaskBloc({
     required TaskDetailRepository repository,
+    required CampaignDetailRepository campaignRepository,
     required this.taskId,
     Task? task,
   })  : _repository = repository,
+        _campaignRepository = campaignRepository,
         super(TaskUninitialized()) {
     on<InitializeTask>(_onInitializeTask);
     on<UpdateTask>(_onUpdateTask, transformer: debounce(const Duration(seconds: 2)));
@@ -25,6 +29,11 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     on<TriggerWebhook>(_onTriggerWebhook);
     on<OpenTaskInfo>(_onOpenTaskInfo);
     on<CloseTaskInfo>(_onCloseTaskInfo);
+    on<RefetchTask>(_onRefetchTask);
+    on<ValidationFailed>(_onValidationFailed);
+    on<DownloadFile>(_onFileDownloaded);
+    on<ReleaseTask>(_onReleaseTask);
+    on<GoBackToPreviousTask>(_onGoBackToPreviousTask);
   }
 
   Future<void> _onInitializeTask(InitializeTask event, Emitter<TaskState> emit) async {
@@ -69,11 +78,24 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     final data = {'responses': formData, 'complete': true};
 
     try {
-      final updatedTask = _state.data.copyWith(responses: formData, complete: true);
+      emit(TaskFetching());
+      final updatedTask = _state.data.copyWith(responses: formData);
       final response = await _repository.saveData(taskId, data);
       final nextTaskId = response.nextDirectId;
 
-      emit(TaskSubmitted(updatedTask, _state.previousTasks, nextTaskId: nextTaskId));
+      if (nextTaskId == taskId) {
+        emit(TaskReturned.clone(_state));
+      } else {
+        emit(TaskSubmitted(updatedTask, _state.previousTasks, nextTaskId: nextTaskId));
+      }
+    } on DioException catch (e) {
+      print(e);
+      final campaign = await _campaignRepository.fetchData(_state.data.stage.campaign);
+      if (campaign.smsCompleteTaskAllow && e.type == DioExceptionType.connectionError) {
+        final updatedTask = _state.data.copyWith(responses: formData);
+        emit(RedirectToSms.clone(_state, campaign.smsPhone));
+        emit(TaskLoaded(updatedTask, _state.previousTasks));
+      }
     } catch (e) {
       print(e);
       final updatedTask = _state.data.copyWith(responses: formData);
@@ -116,6 +138,45 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
       if (isSchemaEmpty) {
         emit(TaskClosed());
       }
+    }
+  }
+
+  Future<void> _onRefetchTask(RefetchTask event, Emitter<TaskState> emit) async {
+    try {
+      emit(TaskFetching());
+      final data = await _repository.fetchData(taskId);
+      final previousTasks = await _repository.fetchPreviousTaskData(taskId);
+      emit(TaskLoaded(data, previousTasks));
+    } catch (e) {
+      emit(TaskFetchingError(e.toString()));
+    }
+  }
+
+  Future<void> _onValidationFailed(ValidationFailed event, Emitter<TaskState> emit) async {
+    final _state = state as TaskInitialized;
+    final error = event.error;
+    emit(TaskSubmitError.clone(_state, error));
+    emit(TaskLoaded(_state.data, _state.previousTasks));
+  }
+
+  Future<void> _onFileDownloaded(DownloadFile event, Emitter<TaskState> emit) async {
+    final _state = state as TaskInitialized;
+    final error = event.message;
+    emit(FileDownloaded.clone(_state, error));
+    emit(TaskLoaded(_state.data, _state.previousTasks));
+  }
+
+  Future<void> _onReleaseTask(ReleaseTask event, Emitter<TaskState> emit) async {
+    await _repository.releaseTask(taskId);
+    emit(TaskReleased.clone(state as TaskInitialized));
+  }
+
+  Future<void> _onGoBackToPreviousTask(GoBackToPreviousTask event, Emitter<TaskState> emit) async {
+    try {
+      final previousTaskId = await _repository.openPreviousTask(taskId);
+      emit(GoBackToPreviousTaskState.clone(state as TaskInitialized, previousTaskId));
+    } catch (e) {
+      emit(GoBackToPreviousTaskError.clone(state as TaskInitialized, e.toString()));
     }
   }
 }

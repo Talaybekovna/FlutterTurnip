@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:gigaturnip/src/widgets/dialogs/base_dialog.dart';
 
-class JoinCampaignDialog extends StatelessWidget {
-  final String title;
+import '../widgets.dart';
+
+class FormDialog extends StatelessWidget {
+  final String? title;
   final String content;
   final String buttonText;
 
-  const JoinCampaignDialog({
-    Key? key,
-    required this.title,
+  const FormDialog({
+    super.key,
+    this.title,
     required this.content,
     required this.buttonText,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return BaseDialog(
-      title: title,
+      title: title ?? '',
       content: content,
       actions: [
         SizedBox(
